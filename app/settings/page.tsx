@@ -15,22 +15,8 @@ import {
   Sun,
   Smartphone,
 } from "lucide-react";
-import SettingsSection from "@/components/SettingsSection";
-import SettingsItem from "@/components/SettingsItem";
-import { AccountSection } from "@/components/AccountSection";
-import SettingsHeader from "@/components/SettingsHeader";
-import PreferencesRow from "@/components/PreferencesRow";
-import SecuritySection from "@/components/SecuritySection";
 import { useDensity } from "@/lib/context/DensityContext";
 
-export default function SettingsPage() {
-  const { density, setDensity } = useDensity();
-  const [notifications, setNotifications] = useState({
-    billReminders: true,
-    paymentConfirmations: true,
-    goalUpdates: false,
-    securityAlerts: true,
-  });
 
 const SECTIONS = [
   { id: "profile",        label: "Profile",         icon: User    },
@@ -196,43 +182,21 @@ function SaveButton({ label = "Save changes" }: { label?: string }) {
         className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-60 transition-colors min-w-[130px] justify-center"
       >
         {state === "saving" && (
-          <svg
-            className="h-4 w-4 animate-spin"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-
-            {/* Density Row */}
-            <PreferencesRow
-              icon={<Zap className="w-5 h-5 text-blue-400" />}
-              title="Display Density"
-              subtitle="Adjust the spacing of tables and lists"
-              rightContent={
-                <div className="relative">
-                  <select
-                    className="w-full bg-[#FFFFFF0D] text-white text-sm rounded-lg px-4 py-2 pr-8 appearance-none border border-zinc-800 focus:outline-none focus:border-[#FF4500]"
-                    value={density}
-                    onChange={(e) => setDensity(e.target.value as 'comfortable' | 'compact')}
-                  >
-                    <option value="comfortable">Comfortable</option>
-                    <option value="compact">Compact</option>
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
-                    <ChevronDown className="w-5 h-5 text-gray-300" />
-                  </div>
-                </div>
-              }
-            />
-          </div>
-        </div>
+          <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+        )}
+        {state === "saved" ? (
+          <>
+            <Check className="h-4 w-4" />
+            {label}
+          </>
+        ) : label}
+      </button>
+    </div>
+  );
+}
 
 type InsuranceReminder = {
   policyId: string;
@@ -641,12 +605,17 @@ function FamilySection() {
 }
 
 function PreferencesSection() {
+  const { density, setDensity } = useDensity();
   const [theme, setTheme] = useState<"system" | "light" | "dark">("system");
   const themes = [
     { id: "system", label: "System",  Icon: Smartphone },
     { id: "light",  label: "Light",   Icon: Sun        },
     { id: "dark",   label: "Dark",    Icon: Moon       },
   ] as const;
+  const densityOptions = [
+    { id: "comfortable" as const, label: "Comfortable" },
+    { id: "compact"     as const, label: "Compact"     },
+  ];
   return (
     <SectionCard id="preferences">
       <SectionHeader
@@ -669,6 +638,24 @@ function PreferencesSection() {
                 }`}
               >
                 <Icon size={18} strokeWidth={1.8} />
+                {label}
+              </button>
+            ))}
+          </div>
+        </FieldRow>
+        <FieldRow label="Display density" hint="Adjust spacing of lists and tables">
+          <div className="flex gap-2">
+            {densityOptions.map(({ id, label }) => (
+              <button
+                key={id}
+                onClick={() => setDensity(id)}
+                aria-pressed={density === id}
+                className={`flex flex-1 items-center justify-center rounded-lg border py-2 px-3 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
+                  density === id
+                    ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300"
+                    : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600"
+                }`}
+              >
                 {label}
               </button>
             ))}
