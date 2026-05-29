@@ -154,16 +154,16 @@ export default function Bills() {
 							</p>
 						</div>
 
-						<form className='mt-6 space-y-6' action={formAction}>
+						<form action={formAction} className='mt-6 space-y-6'>
 							<div className='grid gap-1'>
 								<label className='block text-sm font-medium text-gray-300'>
 									Bill Name
 								</label>
 								<input
-									type='text'
 									id='name'
 									name='name'
-									defaultValue={state?.name}
+									type='text'
+									defaultValue={state.name}
 									placeholder='e.g., Electricity, School Fees, Rent'
 									className='w-full rounded-xl border border-white/10 bg-[#1a1a1a] px-4 py-3 text-white placeholder-gray-500 focus:border-transparent focus:ring-2 focus:ring-red-500'
 								/>
