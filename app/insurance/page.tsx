@@ -70,7 +70,7 @@ export default function Insurance() {
         </div>
       </main>
     </div>
-  )
+  );
 }
 
 function PolicyCard({ 
@@ -88,63 +88,174 @@ function PolicyCard({
   nextPayment: string;
   active: boolean; 
 }) {
-  const paymentStatus = getPolicyPaymentPresentation(nextPayment, active);
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.06] p-6"
+    >
+      <div className="flex items-center gap-3 mb-4">
+        <ShieldCheck className="h-6 w-6 text-emerald-400" aria-hidden />
+        <h3 className="font-semibold text-white">{t("insurance.status_success_title")}</h3>
+      </div>
+      <dl className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <SuccessBadge label={t("insurance.success_badge_name")} value={state.policyName} />
+        <SuccessBadge label={t("insurance.success_badge_type")} value={state.coverageType} />
+        <SuccessBadge
+          label={t("insurance.success_badge_premium")}
+          value={state.monthlyPremium !== undefined ? `$${state.monthlyPremium}/mo` : undefined}
+        />
+        <SuccessBadge
+          label={t("insurance.success_badge_coverage")}
+          value={state.coverageAmount !== undefined ? `$${state.coverageAmount}` : undefined}
+        />
+      </dl>
+    </div>
+  );
+}
+
+function SuccessBadge({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string | number;
+}) {
+  if (value === undefined || value === null) return null;
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3">
+      <dt className="text-xs text-gray-400 uppercase tracking-wide">{label}</dt>
+      <dd className="mt-1 font-semibold text-white">{value}</dd>
+    </div>
+  );
+}
+
+// ─── PolicyCard ────────────────────────────────────────────────────────────────
+
+function PolicyCard({
+  policy,
+  t,
+}: {
+  policy: Policy;
+  t: (key: string) => string;
+}) {
+  const paymentStatus = getPolicyPaymentPresentation(
+    policy.nextPaymentDate,
+    policy.active
+  );
   const StatusIcon = paymentStatus.icon;
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-6">
-      <div className="flex items-center justify-between mb-4">
+    <article className="rounded-2xl border border-white/[0.08] bg-[#111] p-6">
+      {/* Card header */}
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Shield className="w-5 h-5 text-blue-600" />
-          <h3 className="text-lg font-semibold text-gray-900">{name}</h3>
+          <Shield className="h-5 w-5 text-red-400" aria-hidden />
+          <h3 className="text-lg font-semibold text-white">{policy.name}</h3>
         </div>
-        <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold ${paymentStatus.badgeClassName}`}>
-          <StatusIcon className="h-3.5 w-3.5" />
+        <span
+          className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold ${paymentStatus.badgeClassName}`}
+        >
+          <StatusIcon className="h-3.5 w-3.5" aria-hidden />
           <span>{paymentStatus.label}</span>
         </span>
       </div>
 
-      <div className="space-y-3">
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Coverage Type</span>
-          <span className="font-semibold text-gray-900 capitalize">{coverageType}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Monthly Premium</span>
-          <span className="font-semibold text-gray-900">${monthlyPremium}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Coverage Amount</span>
-          <span className="font-semibold text-gray-900">${coverageAmount}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-600">Next Payment</span>
-          <span className="font-semibold text-gray-900">{nextPayment}</span>
-        </div>
-      </div>
+      {/* Policy details */}
+      <dl className="space-y-3">
+        <PolicyRow
+          label={t("insurance.card_coverage_type")}
+          value={<span className="capitalize">{policy.coverageType}</span>}
+        />
+        <PolicyRow
+          label={t("insurance.card_monthly_premium")}
+          value={`$${policy.monthlyPremium}`}
+        />
+        <PolicyRow
+          label={t("insurance.card_coverage_amount")}
+          value={`$${policy.coverageAmount}`}
+        />
+        <PolicyRow
+          label={t("insurance.card_next_payment")}
+          value={policy.nextPaymentDate}
+        />
+      </dl>
 
-      <div className={`mt-4 rounded-lg border px-3 py-3 ${paymentStatus.panelClassName}`}>
+      {/* Status panel */}
+      <div
+        className={`mt-4 rounded-xl border px-3 py-3 ${paymentStatus.panelClassName}`}
+      >
         <div className="flex items-start gap-2">
-          <StatusIcon className="mt-0.5 h-4 w-4 shrink-0" />
+          <StatusIcon className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden />
           <div className="min-w-0">
             <p className="text-sm font-semibold">{paymentStatus.label}</p>
             <p className="text-sm">{paymentStatus.emphasis}</p>
-            <p className="mt-1 flex items-center gap-1 text-xs text-gray-700">
-              <CalendarClock className="h-3.5 w-3.5" />
-              <span>Next scheduled payment: {nextPayment}</span>
+            <p className="mt-1 flex items-center gap-1 text-xs text-gray-400">
+              <CalendarClock className="h-3.5 w-3.5" aria-hidden />
+              <span>
+                {t("insurance.card_next_payment")}: {policy.nextPaymentDate}
+              </span>
             </p>
           </div>
         </div>
       </div>
 
-      {active && (
+      {/* Pay now — kept disabled per current scope; wired payment flow is a separate task */}
+      {policy.active && (
         <button
-          className="w-full mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm font-semibold"
+          type="button"
           disabled
+          aria-disabled="true"
+          className="mt-4 w-full cursor-not-allowed rounded-xl border border-white/10 bg-[#1a1a1a] px-4 py-2 text-sm font-semibold text-gray-500 transition"
         >
-          Pay Premium Now
+          {t("insurance.card_pay_now")}
         </button>
       )}
+    </article>
+  );
+}
+
+function PolicyRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
+  return (
+    <div className="flex justify-between text-sm">
+      <dt className="text-gray-400">{label}</dt>
+      <dd className="font-semibold text-white">{value}</dd>
     </div>
-  )
+  );
+}
+
+// ─── EmptyPolicies ─────────────────────────────────────────────────────────────
+
+function EmptyPolicies({
+  title,
+  body,
+  onCta,
+  ctaLabel,
+}: {
+  title: string;
+  body: string;
+  onCta: () => void;
+  ctaLabel: string;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/[0.12] bg-white/[0.02] py-16 text-center">
+      <Shield className="mb-4 h-10 w-10 text-gray-600" aria-hidden />
+      <h3 className="text-lg font-semibold text-white">{title}</h3>
+      <p className="mt-2 max-w-sm text-sm text-gray-400">{body}</p>
+      <button
+        type="button"
+        onClick={onCta}
+        className="mt-6 flex items-center gap-2 rounded-xl bg-red-600 px-5 py-2.5 font-medium text-white transition hover:bg-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#010101]"
+      >
+        <Plus className="h-4 w-4" aria-hidden />
+        {ctaLabel}
+      </button>
+    </div>
+  );
 }
