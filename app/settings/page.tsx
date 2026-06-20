@@ -134,10 +134,14 @@ function Toggle({
   labelKey,
   descriptionKey,
   defaultChecked,
+  checked,
+  onChange,
 }: {
   labelKey: string;
   descriptionKey?: string;
   defaultChecked?: boolean;
+  checked?: boolean;
+  onChange?: (next: boolean) => void;
 }) {
   const { t } = useClientTranslator();
   const [on, setOn] = useState(defaultChecked ?? false);
@@ -157,7 +161,11 @@ function Toggle({
       <button
         role="switch"
         aria-checked={on}
-        onClick={() => setOn((v) => !v)}
+        onClick={() => {
+          const next = !on;
+          if (checked !== undefined) onChange?.(next);
+          else setUncontrolledOn(next);
+        }}
         className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 ${
           on ? "bg-indigo-600" : "bg-gray-200 dark:bg-gray-700"
         }`}
@@ -197,22 +205,36 @@ function SaveButton({ labelKey = "settings.save_changes" }: { labelKey?: string 
   return (
     <div className="flex justify-end px-6 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800">
       <button
-        onClick={handleClick}
-        disabled={state === "saving"}
+        onClick={onSave}
+        disabled={
+          isDisabled || saveState === "saving" || saveState === "loading"
+        }
         className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-60 transition-colors min-w-[130px] justify-center"
       >
-        {state === "saving" && (
+        {saveState === "saving" || saveState === "loading" ? (
           <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            />
           </svg>
-        )}
-        {state === "saved" ? (
+        ) : saveState === "saved" ? (
           <>
             <Check className="h-4 w-4" />
             {label}
           </>
-        ) : label}
+        ) : (
+          label
+        )}
       </button>
     </div>
   );
@@ -616,13 +638,14 @@ function FamilySection() {
   const { t } = useClientTranslator();
   
   const members = [
-    { initials: "AO", name: "Amara Osei", role: "Owner",  limit: "—" },
+    { initials: "AO", name: "Amara Osei", role: "Owner", limit: "—" },
     { initials: "KO", name: "Kwame Osei", role: "Member", limit: "$500 / mo" },
-    { initials: "EO", name: "Esi Osei",   role: "Viewer", limit: "$0" },
+    { initials: "EO", name: "Esi Osei", role: "Viewer", limit: "$0" },
   ];
   
   const roleColors: Record<string, string> = {
-    Owner:  "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300",
+    Owner:
+      "bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300",
     Member: "bg-teal-50 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
     Viewer: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400",
   };
@@ -636,10 +659,7 @@ function FamilySection() {
       />
       <ul className="divide-y divide-gray-50 dark:divide-gray-800/60">
         {members.map((m) => (
-          <li
-            key={m.initials}
-            className="flex items-center gap-4 px-6 py-4"
-          >
+          <li key={m.initials} className="flex items-center gap-4 px-6 py-4">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 text-sm font-semibold select-none">
               {m.initials}
             </div>
@@ -765,7 +785,10 @@ function PreferencesSection() {
         <FieldRow labelKey="settings.preferences.date_format_label">
           <div className="flex gap-3 flex-wrap">
             {["DD/MM/YYYY", "MM/DD/YYYY", "YYYY-MM-DD"].map((fmt) => (
-              <label key={fmt} className="flex cursor-pointer items-center gap-2">
+              <label
+                key={fmt}
+                className="flex cursor-pointer items-center gap-2"
+              >
                 <input
                   type="radio"
                   name="dateFormat"
@@ -783,7 +806,9 @@ function PreferencesSection() {
         <FieldRow labelKey="settings.preferences.display_density_label">
           <select
             value={density}
-            onChange={(e) => setDensity(e.target.value as 'comfortable' | 'compact')}
+            onChange={(e) =>
+              setDensity(e.target.value as "comfortable" | "compact")
+            }
             className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3.5 py-2 text-sm text-gray-900 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-colors"
           >
             <option value="comfortable">{t("settings.preferences.density_comfortable")}</option>
@@ -801,6 +826,53 @@ function PreferencesSection() {
 export default function SettingsPage() {
   const { t } = useClientTranslator();
   const [active, setActive] = useState<SectionId>("profile");
+  const t = useClientTranslator();
+  const { toast } = useToast();
+
+  const { preferences, isLoading, saveState, error, updatePreferences, flush } =
+    useUserPreferences();
+
+  useEffect(() => {
+    if (!preferences) return;
+    if (saveState === "saving") {
+      const id = toast({
+        variant: "info",
+        title: t.t("settings.save.saving", "Saving…"),
+        duration: 1500,
+      });
+      // auto-dismiss is handled by duration
+      void id;
+    } else if (saveState === "saved") {
+      toast({
+        variant: "success",
+        title: t.t("settings.save.saved", "Saved"),
+        duration: 2000,
+      });
+    } else if (saveState === "error") {
+      toast({
+        variant: "error",
+        title: t.t("settings.save.error", "Failed to save preferences"),
+        description: error ?? undefined,
+        duration: 5000,
+      });
+    }
+  }, [error, preferences, saveState, t, toast]);
+
+  const currency = preferences?.currency;
+  const timezone = preferences?.timezone;
+  const notificationsEnabled = preferences?.notifications_enabled;
+
+  const onToggleNotifications = (next: boolean) => {
+    updatePreferences({ notifications_enabled: next });
+  };
+
+  const onCurrencyChange = (next: string) => {
+    updatePreferences({ currency: next });
+  };
+
+  const onTimezoneChange = (next: string) => {
+    updatePreferences({ timezone: next });
+  };
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   // ── Scroll-spy: update active nav item based on visible section ────────────
@@ -816,7 +888,7 @@ export default function SettingsPage() {
         const best = [...visible.entries()].sort((a, b) => b[1] - a[1])[0];
         if (best && best[1] > 0) setActive(best[0] as SectionId);
       },
-      { rootMargin: "-20% 0px -60% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] }
+      { rootMargin: "-20% 0px -60% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] },
     );
 
     ids.forEach((id) => {
@@ -905,11 +977,24 @@ export default function SettingsPage() {
         {/* ── Main content stack ── */}
         <main className="space-y-6" aria-label={t("settings.content_aria_label")}>
           <ProfileSection />
-          <NotificationsSection />
+          <NotificationsSection
+            preferences={preferences}
+            onToggle={onToggleNotifications}
+            currency={currency}
+            onCurrencyChange={onCurrencyChange}
+            timezone={timezone}
+            onTimezoneChange={onTimezoneChange}
+          />
           <SecuritySection />
-          <WalletSection />
+          <WalletSection
+            currency={currency}
+            onCurrencyChange={onCurrencyChange}
+          />
           <FamilySection />
-          <PreferencesSection />
+          <PreferencesSection
+            timezone={timezone}
+            onTimezoneChange={onTimezoneChange}
+          />
         </main>
       </div>
     </div>
