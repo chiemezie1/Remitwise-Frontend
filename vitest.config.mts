@@ -3,6 +3,7 @@ import path from 'path'
 
 export default defineConfig({
   test: {
+    pool: 'vmForks',
     include: [
       'lib/contracts/**/*.test.ts',
       'lib/**/*.test.ts',

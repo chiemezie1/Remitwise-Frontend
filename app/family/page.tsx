@@ -6,6 +6,7 @@ import PageHeader from "@/components/PageHeader";
 import FamilyWalletsStatsCards from "./components/FamilyWalletsStatsCards";
 import UnderstandingRolesSection from "./components/UnderstandingRolesSection";
 import FamilyMemberSection from "./components/FamilyMemberSection";
+import ApprovalsQueue from "./components/ApprovalsQueue";
 
 export default function FamilyWallets() {
 	const { t } = useClientTranslator();
@@ -39,6 +40,8 @@ export default function FamilyWallets() {
 					</div>
 
 					<aside className='space-y-8 xl:sticky xl:top-6'>
+						<ApprovalsQueue />
+
 						<UnderstandingRolesSection />
 
 						<div
