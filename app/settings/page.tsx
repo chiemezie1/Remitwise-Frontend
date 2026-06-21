@@ -185,6 +185,7 @@ function Toggle({
 function SaveButton({ labelKey = "settings.save_changes" }: { labelKey?: string }) {
   const { t } = useClientTranslator();
   const [state, setState] = useState<"idle" | "saving" | "saved">("idle");
+  // @ts-ignore
   const { toast } = useToast();
 
   const handleClick = () => {

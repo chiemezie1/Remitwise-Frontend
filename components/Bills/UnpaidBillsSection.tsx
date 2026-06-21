@@ -47,7 +47,7 @@ export function UnpaidBillsSection() {
                 };
                 return (
                     <section key={status} className="mb-4">
-                        <h3 className={`text-lg font-semibold ${headerStyles[status]}`}>{status.charAt(0).toUpperCase() + status.slice(1)} Bills</h3>
+                        <h3 className={`text-lg font-semibold ${headerStyles[status] || "text-white/60"}`}>{status.charAt(0).toUpperCase() + status.slice(1)} Bills</h3>
                         <div className={density === 'compact' ? "flex flex-col gap-2" : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-[19.67px]"}>
                             {bills.map((bill) => (
                                 <BillCards key={bill.id} bill={bill} density={density} />

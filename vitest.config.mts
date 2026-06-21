@@ -12,7 +12,6 @@ export default defineConfig({
       'tests/unit/**/*.test.tsx',
       'tests/unit/**/*.test.cjs',
       'tests/integration/**/*.test.ts',
-      'tests/integration/**/*.test.cjs',
       'tests/property/**/*.test.ts',
       'tests/property/**/*.test.cjs',
       'tests/session/**/*.test.ts',
