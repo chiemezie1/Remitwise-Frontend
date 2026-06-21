@@ -11,6 +11,24 @@
     "status": "Status",
     "date": "Date"
   },
+  "transactionStatus": {
+    "pending": {
+      "label": "Confirming",
+      "emphasis": "Waiting for network confirmation"
+    },
+    "confirmed": {
+      "label": "Confirmed",
+      "emphasis": "Settled on the Stellar network"
+    },
+    "failed": {
+      "label": "Failed",
+      "emphasis": "The transaction did not go through"
+    },
+    "unknown": {
+      "label": "Status unknown",
+      "emphasis": "Still unconfirmed — check the explorer"
+    }
+  },
   "dashboard": {
     "totalSent": "Total Sent",
     "savings": "Savings",
