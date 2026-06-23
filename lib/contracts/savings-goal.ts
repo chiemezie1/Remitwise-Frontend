@@ -149,3 +149,6 @@ export async function isGoalCompleted(goalId: string): Promise<boolean> {
 
   return goal.currentAmount >= goal.targetAmount;
 }
+
+// Re-export resolved passphrase for callers that need it when signing transactions.
+export { getNetworkPassphrase };
