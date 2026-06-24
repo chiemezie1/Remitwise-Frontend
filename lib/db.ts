@@ -1,3 +1,4 @@
+export { prisma as default, prisma, getDatabaseUrl } from './prisma';
 import { PrismaClient } from "@prisma/client";
 
 declare global {
